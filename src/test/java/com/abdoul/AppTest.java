@@ -5,12 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.sql.Date;
 
-import org.hibernate.Session;
-import org.hibernate.query.NativeQuery;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import com.abdoul.dao.CourseDAO;
 import com.abdoul.dao.DepartmentDAO;
@@ -25,6 +24,7 @@ import com.abdoul.models.Student;
 import com.abdoul.models.StudentCourses;
 import com.abdoul.models.StudentRegistration;
 
+@TestMethodOrder(OrderAnnotation.class)
 public class AppTest {
 
     private static StudentDAO studentDAO;
@@ -42,58 +42,70 @@ public class AppTest {
         studentCoursesDAO = new StudentCoursesDAO();
     }
 
-    @AfterAll
-    public static void tearDown() {
-        // Clean up resources if needed
-    }
-
-    private static void dropTable(Session session, String tableName) {
-        String sql = String.format("DROP TABLE IF EXISTS %s CASCADE", tableName);
-        NativeQuery<?> query = session.createNativeQuery(sql);
-        query.executeUpdate();
-    }
-
     @Test
     @Order(1)
     public void testSaveStudent() {
+
         Student student = studentDAO.saveStudent("Mugisha", "Abdoullatif", Date.valueOf("2002-05-01"), 'M');
         assertNotNull(student);
+
     }
 
     @Test
     @Order(2)
     public void testGetByFirstNameAndLastName() {
-        Student student = studentDAO.getByFirstNameAndLastName("Mugisha", "Abdoullatif").get(0);
+
+        Student student = studentDAO.getByFirstNameAndLastName("Mugisha", "Abdoullatif");
         assertEquals("Mugisha", student.getFirstName());
         assertEquals("Abdoullatif", student.getLastName());
+
     }
 
     @Test
     @Order(3)
     public void testSaveSemester() {
+
         Semester semester = semesterDAO.saveSemester("Spring 2024", Date.valueOf("2024-01-01"), Date.valueOf("2024-05-31"));
         assertNotNull(semester);
+
     }
 
     @Test
     @Order(4)
     public void testSaveDepartment() {
+
         Department department = departmentDAO.saveDepartment("Software Engineering", "CS");
         assertNotNull(department);
+
     }
 
     @Test
     @Order(5)
     public void testSaveCourse() {
+
         Semester semester = semesterDAO.getSemesterByName("Spring 2024");
-        Course course = courseDAO.saveCourse("Software Engineering", "CS", semester);
-        assertNotNull(course);
+    
+        Course course1 = courseDAO.saveCourse("Software Engineering", "CS101", semester);
+        Course course2 = courseDAO.saveCourse("Database Systems", "CS102", semester);
+        Course course3 = courseDAO.saveCourse("Algorithms", "CS103", semester);
+        Course course4 = courseDAO.saveCourse("Operating Systems", "CS104", semester);
+        Course course5 = courseDAO.saveCourse("Computer Networks", "CS105", semester);
+    
+        assertNotNull(course1);
+        assertNotNull(course2);
+        assertNotNull(course3);
+        assertNotNull(course4);
+        assertNotNull(course5);
+
     }
+    
+
 
     @Test
     @Order(6)
     public void testRegisterStudent() {
-        Student student = studentDAO.getByFirstNameAndLastName("Mugisha", "Abdoullatif").get(0);
+
+        Student student = studentDAO.getByFirstNameAndLastName("Mugisha", "Abdoullatif");
         Semester semester = semesterDAO.getSemesterByName("Spring 2024");
         Department department = departmentDAO.getDepartmentByCode("CS");
 
@@ -101,45 +113,89 @@ public class AppTest {
         studentRegistrationDAO.registerStudent(24978, student, semester, department);
 
         StudentRegistration registration = studentRegistrationDAO.getByRegistrationNumber(24978);
+
         assertNotNull(semester);
         assertNotNull(department);
+        assertNotNull(registration);
+
     }
 
     @Test
     @Order(7)
     public void testSaveStudentScore() {
-        Course course = courseDAO.getCourseByCode("CS");
 
         StudentRegistrationDAO studentRegistrationDAO = new StudentRegistrationDAO();
         StudentRegistration registration = studentRegistrationDAO.getByRegistrationNumber(24978);
-        System.out.println(registration.getRegistrationNumber());
 
-        StudentCourses studentCourses = studentCoursesDAO.saveStudentCourse(course, 20, registration);
-        assertNotNull(studentCourses);
+        assertNotNull(registration);
+
+        Course course1 = courseDAO.getCourseByCode("CS101");
+        assertNotNull(course1);
+        StudentCourses studentCourse1 = studentCoursesDAO.saveStudentCourse(course1, 20, registration);
+        assertNotNull(studentCourse1);
+
+        Course course2 = courseDAO.getCourseByCode("CS102");
+        assertNotNull(course2);
+        StudentCourses studentCourse2 = studentCoursesDAO.saveStudentCourse(course2, 18, registration);
+        assertNotNull(studentCourse2);
+
+        Course course3 = courseDAO.getCourseByCode("CS103");
+        assertNotNull(course3);
+        StudentCourses studentCourse3 = studentCoursesDAO.saveStudentCourse(course3, 15, registration);
+        assertNotNull(studentCourse3);
+
+        Course course4 = courseDAO.getCourseByCode("CS104");
+        assertNotNull(course4);
+        StudentCourses studentCourse4 = studentCoursesDAO.saveStudentCourse(course4, 12, registration);
+        assertNotNull(studentCourse4);
+
+        Course course5 = courseDAO.getCourseByCode("CS105");
+        assertNotNull(course5);
+        StudentCourses studentCourse5 = studentCoursesDAO.saveStudentCourse(course5, 17, registration);
+        assertNotNull(studentCourse5);
+
     }
+
 
     @Test
     @Order(8)
     public void testGetTotalMarks() {
+
         StudentRegistrationDAO studentRegistrationDAO = new StudentRegistrationDAO();
         StudentRegistration studentRegistration = studentRegistrationDAO.getByRegistrationNumber(24978);
-        System.out.println(studentRegistration.getRegistrationNumber());
-        // Calculate total marks
+        
+        
         int totalMarks = studentCoursesDAO.getTotalMarks(studentRegistration);
-        assertEquals(100, totalMarks); // Assuming 20 is the only marks saved
+        assertEquals(82, totalMarks);
     }
 
-    // @Test
-    // @Order(9)
-    // public void testNormalizeMarksTo20() {
-    //     double normalizedMarks = studentCoursesDAO.normalizeMarksTo20(100);
-    //     assertEquals(20.0, normalizedMarks);
-    // }
+    @Test
+    @Order(9)
+    public void testNormalizeMarksTo20() {
 
-    // @Test
-    // @Order(10)
-    // public void testGradeStudent() {
-    //     String grade = studentCoursesDAO.gradeStudent(18.0);
-    //     assertEquals("High Distinction", grade);
-    // }
+        StudentRegistrationDAO studentRegistrationDAO = new StudentRegistrationDAO();
+        StudentRegistration studentRegistration = studentRegistrationDAO.getByRegistrationNumber(24978);
+        
+        
+        int totalMarks = studentCoursesDAO.getTotalMarks(studentRegistration);
+
+        double normalizedMarks = studentCoursesDAO.normalizeMarksTo20(totalMarks);
+        assertEquals(16.4, normalizedMarks);
+    }
+
+    @Test
+    @Order(10)
+    public void testGradeStudent() {
+
+        StudentRegistrationDAO studentRegistrationDAO = new StudentRegistrationDAO();
+        StudentRegistration studentRegistration = studentRegistrationDAO.getByRegistrationNumber(24978);
+        
+        int totalMarks = studentCoursesDAO.getTotalMarks(studentRegistration);
+
+        double normalizedMarks = studentCoursesDAO.normalizeMarksTo20(totalMarks);
+
+        String grade = studentCoursesDAO.gradeStudent(normalizedMarks);
+        assertEquals("High Distinction", grade);
+        
+    }
 }

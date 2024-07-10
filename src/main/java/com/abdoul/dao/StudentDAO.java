@@ -34,12 +34,12 @@ public class StudentDAO {
         return null;
     }
 
-    public List<Student> getByFirstNameAndLastName(String firstName, String lastName) {
+    public Student getByFirstNameAndLastName(String firstName, String lastName) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Query<Student> query = session.createQuery("FROM Student WHERE firstName = :firstName AND lastName = :lastName", Student.class);
         query.setParameter("firstName", firstName);
         query.setParameter("lastName", lastName);
-        List<Student> students = query.getResultList();
+        Student students = query.getResultList().get(0);
         session.close();
         return students;
     }
