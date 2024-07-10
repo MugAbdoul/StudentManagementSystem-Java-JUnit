@@ -8,7 +8,6 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.util.List;
-import java.util.UUID;
 
 public class DepartmentDAO {
 
