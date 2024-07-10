@@ -28,7 +28,6 @@ public class StudentCoursesDAO {
         }
     }
 
-    // Get a student course by ID
     public StudentCourses getStudentCourseById(UUID id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(StudentCourses.class, id);
@@ -38,7 +37,6 @@ public class StudentCoursesDAO {
         }
     }
 
-    // Get all student courses
     public List<StudentCourses> getAllStudentCourses() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("from StudentCourses", StudentCourses.class).list();
@@ -48,7 +46,6 @@ public class StudentCoursesDAO {
         }
     }
 
-    // Update an existing student course
     public void updateStudentCourse(StudentCourses studentCourse) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -63,7 +60,6 @@ public class StudentCoursesDAO {
         }
     }
 
-    // Delete a student course by ID
     public void deleteStudentCourse(UUID id) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {

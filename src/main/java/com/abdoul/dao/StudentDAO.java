@@ -35,4 +35,11 @@ public class StudentDAO {
         session.close();
         return students;
     }
+
+    public List<Student> getAllStudents() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        List<Student> students = session.createQuery("FROM Student", Student.class).list();
+        session.close();
+        return students;
+    }
 }

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import com.abdoul.models.Semester;
 import com.abdoul.utils.HibernateUtil;
@@ -28,9 +29,11 @@ public class SemesterDAO {
         }
     }
 
-    public Semester getSemesterById(UUID id) {
+    public Semester getSemesterByName(String semesterName) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.get(Semester.class, id);
+            Query<Semester> query = session.createQuery("from Semester where semesterName = :name", Semester.class);
+            query.setParameter("name", semesterName);
+            return query.uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -46,35 +49,4 @@ public class SemesterDAO {
         }
     }
 
-    public void updateSemester(Semester semester) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            session.update(semester);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        }
-    }
-
-    public void deleteSemester(UUID id) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            Semester semester = session.get(Semester.class, id);
-            if (semester != null) {
-                session.delete(semester);
-                System.out.println("Semester is deleted");
-            }
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        }
-    }
 }

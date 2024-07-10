@@ -8,9 +8,9 @@ import com.abdoul.utils.HibernateUtil;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import java.util.List;
-import java.util.UUID;
 
 public class CourseDAO {
 
@@ -31,31 +31,6 @@ public class CourseDAO {
         }
     }
 
-    public Course getCourseById(UUID id) {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.get(Course.class, id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public int getTotalMarksInSemester(int registrationNumber) {
-        StudentRegistration studentRegistration = StudentRegistrationDAO.getByRegistrationNumber(registrationNumber);
-        if (studentRegistration == null) {
-            throw new IllegalArgumentException("Invalid registration number: " + registrationNumber);
-        }
-        
-        int totalMarks = 0;
-        List<StudentCourses> courses = studentRegistration.getStudentCourses();
-        for (StudentCourses course : courses) {
-            totalMarks += course.getMarksIncourse();
-        }
-        
-        // Assuming each course is graded out of 20 marks and a student has taken 5 courses
-        return (totalMarks * 100) / (5 * 20);
-    }
-
     public List<Course> getAllCourses() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("from Course", Course.class).list();
@@ -65,35 +40,15 @@ public class CourseDAO {
         }
     }
 
-    public void updateCourse(Course course) {
-        Transaction transaction = null;
+    public Course getCourseByCode(String courseCode) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            session.update(course);
-            transaction.commit();
+            Query<Course> query = session.createQuery("from Course where courseCode = :code", Course.class);
+            query.setParameter("code", courseCode);
+            return query.uniqueResult();
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             e.printStackTrace();
+            return null;
         }
     }
 
-    public void deleteCourse(UUID id) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            Course course = session.get(Course.class, id);
-            if (course != null) {
-                session.delete(course);
-                System.out.println("Course is deleted");
-            }
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        }
-    }
 }
