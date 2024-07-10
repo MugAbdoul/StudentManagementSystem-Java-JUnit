@@ -36,7 +36,7 @@ public class SemesterDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<Semester> query = session.createQuery("from Semester where semesterName = :name", Semester.class);
             query.setParameter("name", semesterName);
-            return query.uniqueResult();
+            return query.list().get(0);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

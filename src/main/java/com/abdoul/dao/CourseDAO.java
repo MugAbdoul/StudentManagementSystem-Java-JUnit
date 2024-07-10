@@ -14,7 +14,7 @@ import java.util.List;
 
 public class CourseDAO {
 
-    public void saveCourse(String courseName, String courseCode, Semester semester) {
+    public Course saveCourse(String courseName, String courseCode, Semester semester) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -23,12 +23,15 @@ public class CourseDAO {
 
             session.save(course);
             transaction.commit();
+
+            return course;
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
             }
             e.printStackTrace();
         }
+        return null;
     }
 
     public List<Course> getAllCourses() {
@@ -44,7 +47,7 @@ public class CourseDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<Course> query = session.createQuery("from Course where courseCode = :code", Course.class);
             query.setParameter("code", courseCode);
-            return query.uniqueResult();
+            return query.list().get(0);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

@@ -5,25 +5,22 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.NativeQuery;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+// import org.junit.AfterClass;
+// import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class BaseTest {
 
     protected static SessionFactory sessionFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
-        // Set up Hibernate session factory
         sessionFactory = new Configuration().configure().buildSessionFactory();
 
-        // Create tables
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
 
-            // Create tables using Hibernate's hbm2ddl.auto property
             createTable(session, "Department");
             createTable(session, "Course");
             createTable(session, "Semester");
@@ -41,9 +38,8 @@ public abstract class BaseTest {
         query.executeUpdate();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
-        // Drop tables
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
 

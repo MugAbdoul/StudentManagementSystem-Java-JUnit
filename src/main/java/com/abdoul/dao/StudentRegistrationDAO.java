@@ -41,7 +41,7 @@ public class StudentRegistrationDAO {
                 StudentRegistration.class
             );
             query.setParameter("registrationNumber", registrationNumber);
-            return query.uniqueResult();
+            return query.getResultList().get(0);
         }
     }
 

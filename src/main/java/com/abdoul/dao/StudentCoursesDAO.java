@@ -13,7 +13,7 @@ import com.abdoul.models.StudentRegistration;
 import com.abdoul.utils.HibernateUtil;
 
 public class StudentCoursesDAO {
-    public void saveStudentCourse(Course course, int marksIncourse, StudentRegistration studentRegistration) {
+    public StudentCourses saveStudentCourse(Course course, int marksIncourse, StudentRegistration studentRegistration) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -21,12 +21,15 @@ public class StudentCoursesDAO {
             StudentCourses studentCourse = new StudentCourses(course, marksIncourse, studentRegistration);
             session.save(studentCourse);
             transaction.commit();
+
+            return studentCourse;
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
             }
             e.printStackTrace();
         }
+        return null;
     }
 
     public StudentCourses getStudentCourseById(UUID id) {
@@ -38,26 +41,19 @@ public class StudentCoursesDAO {
         }
     }
 
-    public List<StudentCourses> getAllStudentCourses() {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("from StudentCourses", StudentCourses.class).list();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public int getTotalMarks(StudentRegistration studentRegistration) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            String hql = "SELECT SUM(marksIncourse) FROM StudentCourses WHERE studentRegistration = :studentRegistration";
-            Query<Integer> query = session.createQuery(hql, Integer.class);
+            String hql = "SELECT SUM(sc.marksIncourse) FROM StudentCourses sc WHERE sc.studentRegistration = :studentRegistration";
+            Query<Long> query = session.createQuery(hql, Long.class);
             query.setParameter("studentRegistration", studentRegistration);
-            return query.uniqueResult();
+            Long totalMarks = query.uniqueResult();
+            return totalMarks != null ? totalMarks.intValue() : 0;
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
         }
     }
+    
 
     public double normalizeMarksTo20(int totalMarks) {
         return (totalMarks / 100.0) * 20.0;

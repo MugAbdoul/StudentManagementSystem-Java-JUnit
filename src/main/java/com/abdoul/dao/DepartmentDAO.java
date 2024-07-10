@@ -37,7 +37,7 @@ public class DepartmentDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<Department> query = session.createQuery("from Department where departmentCode = :code", Department.class);
             query.setParameter("code", departmentCode);
-            return query.uniqueResult();
+            return query.getResultList().get(0);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

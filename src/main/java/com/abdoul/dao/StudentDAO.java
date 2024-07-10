@@ -25,11 +25,13 @@ public class StudentDAO {
             session.save(student);
             transaction.commit();
             return student;
-        }catch(Exception e) {
-            return null;
-        }finally {
-            session.close();
+        }catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
         }
+        return null;
     }
 
     public List<Student> getByFirstNameAndLastName(String firstName, String lastName) {
