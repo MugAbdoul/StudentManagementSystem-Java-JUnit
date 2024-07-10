@@ -13,7 +13,7 @@ import com.abdoul.utils.HibernateUtil;
 
 public class SemesterDAO {
     
-    public void saveSemester(String semesterName, Date starDate, Date endDate) {
+    public Semester saveSemester(String semesterName, Date starDate, Date endDate) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -21,12 +21,15 @@ public class SemesterDAO {
             Semester semester = new Semester(semesterName, starDate, endDate);
             session.save(semester);
             transaction.commit();
+
+            return semester;
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
             }
             e.printStackTrace();
         }
+        return null;
     }
 
     public Semester getSemesterByName(String semesterName) {

@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class DepartmentDAO {
 
-    public void saveDepartment(String departmentName, String departmentCode) {
+    public Department saveDepartment(String departmentName, String departmentCode) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -20,12 +20,17 @@ public class DepartmentDAO {
             Department department = new Department(departmentName, departmentCode);
             session.save(department);
             transaction.commit();
+
+            return department;
+
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
             }
             e.printStackTrace();
         }
+
+        return null;
     }
 
     public Department getDepartmentByCode(String departmentCode) {

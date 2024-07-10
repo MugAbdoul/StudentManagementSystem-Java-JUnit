@@ -11,7 +11,7 @@ import com.abdoul.models.Student;
 import com.abdoul.utils.HibernateUtil;
 
 public class StudentDAO {
-    public void saveStudent(String firstName, String lastName, Date dateOfBirth, char gender) {
+    public Student saveStudent(String firstName, String lastName, Date dateOfBirth, char gender) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
 
@@ -21,9 +21,15 @@ public class StudentDAO {
         student.setGender(gender);
         student.setDateOfBirth(dateOfBirth);
 
-        session.save(student);
-        transaction.commit();
-        session.close();
+        try {
+            session.save(student);
+            transaction.commit();
+            return student;
+        }catch(Exception e) {
+            return null;
+        }finally {
+            session.close();
+        }
     }
 
     public List<Student> getByFirstNameAndLastName(String firstName, String lastName) {
